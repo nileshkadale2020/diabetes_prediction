@@ -54,13 +54,54 @@ Cursor_diabtestPred/
 
 ## Installation
 
-1. Clone the repository or navigate to the project directory
-2. Install dependencies:
+**📖 For complete setup instructions, see [COMPLETE_SETUP_GUIDE.md](COMPLETE_SETUP_GUIDE.md)**
+
+This guide includes step-by-step instructions from cloning to running the application.
+
+### Quick Start
+
+1. **Clone the repository:**
+```bash
+git clone git@github.com:nileshkadale2020/diabetes_prediction.git
+cd diabetes_prediction
+```
+
+2. **Create virtual environment:**
+```bash
+python3 -m venv dtsc691
+source dtsc691/bin/activate  # macOS/Linux
+# OR
+dtsc691\Scripts\activate  # Windows
+```
+
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Download the dataset from Kaggle and place it in the `data/` directory as `diabetes.csv`
+4. **Download dataset:**
+```bash
+python download_data.py
+```
+
+5. **Preprocess data:**
+```bash
+python src/data_preprocessing.py
+```
+
+6. **Train models:**
+```bash
+python src/model_training.py
+```
+
+7. **Run Flask application:**
+```bash
+python app.py
+```
+
+Then open: http://localhost:5000
+
+**⚠️ Note**: Model training takes 30-60 minutes. The Flask app requires trained models to make predictions.
 
 ## Usage
 
