@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Diabetes Prediction - ML Model{% endblock %}
+
+{% block content %}
+<header>
+    <div class="container">
+        <h1>Diabetes Risk Prediction</h1>
+        <p>Enter your medical parameters to get a prediction</p>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h2>Input Medical Parameters</h2>
+        <p style="margin-bottom: 1.5rem;">
+            Please enter the following medical parameters. The model will predict your diabetes risk 
+            based on these inputs.
+        </p>
+
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="pregnancies">Number of Pregnancies:</label>
+                <input type="number" id="pregnancies" name="pregnancies" min="0" max="20" required>
+            </div>
+
+            <div class="form-group">
+                <label for="glucose">Glucose Level (mg/dL):</label>
+                <input type="number" id="glucose" name="glucose" min="0" max="300" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="blood_pressure">Blood Pressure (mm Hg):</label>
+                <input type="number" id="blood_pressure" name="blood_pressure" min="0" max="150" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="skin_thickness">Skin Thickness (mm):</label>
+                <input type="number" id="skin_thickness" name="skin_thickness" min="0" max="100" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="insulin">Insulin Level (mu U/ml):</label>
+                <input type="number" id="insulin" name="insulin" min="0" max="1000" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="bmi">BMI (Body Mass Index):</label>
+                <input type="number" id="bmi" name="bmi" min="0" max="60" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="diabetes_pedigree">Diabetes Pedigree Function:</label>
+                <input type="number" id="diabetes_pedigree" name="diabetes_pedigree" min="0" max="3" step="0.001" required>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age (years):</label>
+                <input type="number" id="age" name="age" min="0" max="120" required>
+            </div>
+
+            <button type="submit" class="btn">Predict Diabetes Risk</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing your data...</p>
+        </div>
+
+        <div class="results" id="results">
+            <h3>Prediction Results</h3>
+            <div class="probability" id="probability"></div>
+            <div class="risk-level" id="riskLevel"></div>
+            <p id="predictionText"></p>
+            
+            <div style="margin-top: 1.5rem;">
+                <h4>All Model Predictions:</h4>
+                <div id="allPredictions"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>About the Model</h2>
+        <p>
+            This prediction model uses machine learning algorithms trained on the PIMA Indians Diabetes 
+            Dataset. The model analyzes your medical parameters and provides a risk assessment for diabetes.
+        </p>
+        <p style="margin-top: 1rem;">
+            <strong>Note:</strong> This is a predictive model for educational purposes and should not be 
+            used as a substitute for professional medical advice. Always consult with healthcare 
+            professionals for medical decisions.
+        </p>
+    </div>
+</main>
+
+<script>
+// This JavaScript handles the form submission and prediction display
+// When the user clicks "Predict Diabetes Risk", it sends the form data to the Flask backend
+// and displays the results dynamically without refreshing the page
+
+document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();  // Prevent default form submission (we'll handle it with JavaScript)
+    
+    // Get references to the loading spinner and results div
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const formData = new FormData(this);  // Get all form data
+    
+    // Show loading spinner while we wait for the prediction
+    loading.classList.add('show');
+    results.classList.remove('show');  // Hide previous results if any
+    
+    try {
+        // Send form data to the Flask backend's /predict endpoint
+        // This is an async request, so we wait for the response
+        const response = await fetch('/predict', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // Parse the JSON response from the server
+        const data = await response.json();
+        
+        // Check if there was an error
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        // Display the prediction results
+        // We get references to all the elements where we'll show the results
+        const probability = document.getElementById('probability');
+        const riskLevel = document.getElementById('riskLevel');
+        const predictionText = document.getElementById('predictionText');
+        const allPredictions = document.getElementById('allPredictions');
+        
+        // Display the probability as a percentage
+        probability.textContent = data.probability + '%';
+        riskLevel.textContent = 'Risk Level: ' + data.risk_level;
+        
+        // Show different messages based on the prediction
+        // If prediction is 1 (diabetic), show high-risk styling and message
+        // If prediction is 0 (non-diabetic), show low-risk styling and message
+        if (data.prediction === 1) {
+            predictionText.textContent = 'Based on the input parameters, there is a risk of diabetes. Please consult with a healthcare professional.';
+            results.className = 'results show high-risk';  // Red background for high risk
+        } else {
+            predictionText.textContent = 'Based on the input parameters, the risk of diabetes appears to be low. However, regular check-ups are recommended.';
+            results.className = 'results show low-risk';  // Green background for low risk
+        }
+        
+        // Display predictions from all models for transparency
+        // This shows what each model predicted, not just the best one
+        let allPredsHtml = '<ul style="list-style-position: inside; margin-top: 1rem;">';
+        for (const [model, prob] of Object.entries(data.all_probabilities)) {
+            allPredsHtml += `<li><strong>${model}:</strong> ${prob}%</li>`;
+        }
+        allPredsHtml += '</ul>';
+        allPredsHtml += `<p style="margin-top: 1rem;"><strong>Best Model Used:</strong> ${data.best_model}</p>`;
+        allPredictions.innerHTML = allPredsHtml;
+        
+        // Hide the loading spinner now that we have results
+        loading.classList.remove('show');
+        
+        // Smoothly scroll to the results so the user can see them
+        results.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+    } catch (error) {
+        // If something goes wrong, show an error message
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+        loading.classList.remove('show');
+    }
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Projects - Data Science Portfolio{% endblock %}
+
+{% block content %}
+<header>
+    <div class="container">
+        <h1>My Data Science Projects</h1>
+        <p>Exploring Machine Learning and Data Analysis</p>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h2>Diabetes Prediction Model</h2>
+        <p><strong>Status:</strong> Active | <strong>Type:</strong> Capstone Project</p>
+        <p>
+            An end-to-end machine learning project that predicts diabetes risk based on medical parameters. 
+            This project demonstrates the complete data science workflow from data collection to model deployment.
+        </p>
+        
+        <h3 style="margin-top: 1.5rem;">Key Features:</h3>
+        <ul style="list-style-position: inside; line-height: 2;">
+            <li>Multiple ML algorithms: Logistic Regression, Random Forest, XGBoost, Neural Networks</li>
+            <li>Comprehensive data preprocessing and feature engineering</li>
+            <li>Hyperparameter tuning using GridSearchCV</li>
+            <li>Model evaluation with multiple metrics (Accuracy, Precision, Recall, F1-Score, ROC-AUC)</li>
+            <li>Model interpretability using SHAP and LIME</li>
+            <li>Flask web application for real-time predictions</li>
+        </ul>
+
+        <h3 style="margin-top: 1.5rem;">Technologies Used:</h3>
+        <p>
+            Python, Pandas, NumPy, Scikit-learn, XGBoost, TensorFlow, Matplotlib, Seaborn, Flask, 
+            SHAP, LIME, Jupyter Notebook
+        </p>
+
+        <h3 style="margin-top: 1.5rem;">Results:</h3>
+        <ul style="list-style-position: inside; line-height: 2;">
+            <li>Achieved ROC-AUC score > 0.85 across multiple models</li>
+            <li>Successfully deployed web application with real-time prediction capability</li>
+            <li>Comprehensive model comparison and evaluation</li>
+        </ul>
+
+        <a href="{{ url_for('diabetes') }}" class="btn" style="display: inline-block; margin-top: 1rem;">Try the Model</a>
+    </div>
+
+    <div class="card">
+        <h2>Project Methodology</h2>
+        <h3>1. Data Collection & Exploration</h3>
+        <p>
+            Used the PIMA Indians Diabetes Dataset from Kaggle. Performed exploratory data analysis 
+            to understand data distributions, correlations, and identify potential issues.
+        </p>
+
+        <h3>2. Data Preprocessing</h3>
+        <p>
+            Handled missing values by replacing unrealistic zeros with NaN and using median imputation. 
+            Applied feature scaling using StandardScaler for optimal model performance.
+        </p>
+
+        <h3>3. Model Training</h3>
+        <p>
+            Trained four different models with hyperparameter tuning:
+        </p>
+        <ul style="list-style-position: inside; line-height: 2;">
+            <li><strong>Logistic Regression:</strong> Baseline classification model</li>
+            <li><strong>Random Forest:</strong> Ensemble method for non-linear relationships</li>
+            <li><strong>XGBoost:</strong> Gradient boosting for higher predictive power</li>
+            <li><strong>TensorFlow Neural Network:</strong> Deep learning for pattern recognition</li>
+        </ul>
+
+        <h3>4. Model Evaluation</h3>
+        <p>
+            Compared models using multiple metrics and visualizations including confusion matrices, 
+            ROC curves, and classification reports. Selected best model based on ROC-AUC score.
+        </p>
+
+        <h3>5. Deployment</h3>
+        <p>
+            Integrated the best-performing model into a Flask web application with multiple pages 
+            including homepage, resume, projects, and diabetes prediction interface.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Future Projects</h2>
+        <ul style="list-style-position: inside; line-height: 2;">
+            <li>Time Series Forecasting for Stock Prices</li>
+            <li>Natural Language Processing for Sentiment Analysis</li>
+            <li>Computer Vision for Image Classification</li>
+            <li>Recommendation System for E-commerce</li>
+        </ul>
+    </div>
+</main>
+{% endblock %}
+
