@@ -66,7 +66,16 @@ git clone git@github.com:nileshkadale2020/diabetes_prediction.git
 cd diabetes_prediction
 ```
 
-2. **Create virtual environment:**
+2. **Create a project environment (recommended: conda)**
+
+Option A — recommended (Conda, preserves pinned packages like TensorFlow 2.15):
+```bash
+# create and activate a Python 3.11 environment (name is arbitrary)
+conda create -n diab-py311 python=3.11 -y
+conda activate diab-py311
+```
+
+Option B — using venv (works but TensorFlow may require a specific Python version):
 ```bash
 python3 -m venv dtsc691
 source dtsc691/bin/activate  # macOS/Linux
@@ -75,9 +84,17 @@ dtsc691\Scripts\activate  # Windows
 ```
 
 3. **Install dependencies:**
+
+If you used the recommended conda env above, run:
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
+
+Notes on TensorFlow and Python compatibility:
+- This repository pins `tensorflow==2.15.0` in `requirements.txt`, which is compatible with Python 3.11.
+- If you are running Python 3.12 and prefer not to create a Python 3.11 env, you can install a 3.12-compatible TensorFlow (for example `tensorflow==2.16.x`) and then install the rest of the requirements. In that case either edit `requirements.txt` or install TensorFlow first then run pip for the rest.
+
+If pip install fails on macOS because of missing system libs (e.g., XGBoost or libomp), see the Complete Setup Guide for troubleshooting steps.
 
 4. **Download dataset:**
 ```bash
@@ -95,9 +112,23 @@ python src/model_training.py
 ```
 
 7. **Run Flask application:**
+
+If you used the recommended conda environment (`diab-py311`):
 ```bash
+# either activate the environment first
+conda activate diab-py311
 python app.py
+
+# or run without activating
+conda run -n diab-py311 python app.py
 ```
+
+If you used a venv, activate it then run `python app.py` as before.
+
+Important runtime note about TensorFlow:
+- `app.py` now defers importing TensorFlow until a saved Keras model file (`models/neural_network.h5`) is detected. This means:
+	- If you do not have the neural network model file or don't want to install TensorFlow, the Flask app will still start and the non-TensorFlow models (sklearn/XGBoost) will work normally.
+	- If `models/neural_network.h5` exists but TensorFlow is not installed, the app will print a clear message indicating neural network support is disabled and continue loading other models.
 
 Then open: http://localhost:5000
 

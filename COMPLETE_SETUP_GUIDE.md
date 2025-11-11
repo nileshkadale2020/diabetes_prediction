@@ -65,29 +65,29 @@ You should see directories like: `src/`, `app/`, `notebooks/`, `data/`, `models/
 
 ---
 
-## Step 2: Create Virtual Environment
+## Step 2: Create Virtual Environment / Conda environment
 
-A virtual environment isolates project dependencies from your system Python.
+You can use either a standard venv or a conda environment. Conda is recommended because the repository pins `tensorflow==2.15.0`, which is known to work well with Python 3.11.
 
-### On macOS/Linux:
+### Option A — Recommended (Conda, preserves pinned packages like TensorFlow 2.15)
+
+```bash
+# create and activate a Python 3.11 environment (name is arbitrary)
+conda create -n diab-py311 python=3.11 -y
+conda activate diab-py311
+```
+
+### Option B — Using venv
 
 ```bash
 python3 -m venv dtsc691
-source dtsc691/bin/activate
-```
-
-### On Windows:
-
-```bash
-python -m venv dtsc691
-dtsc691\Scripts\activate
+source dtsc691/bin/activate  # macOS/Linux
+# OR
+dtsc691\Scripts\activate  # Windows
 ```
 
 **Verify activation:**
-You should see `(dtsc691)` at the beginning of your terminal prompt:
-```
-(dtsc691) user@computer:~/diabetes_prediction$
-```
+You should see the environment name in your prompt (e.g. `(diab-py311)` or `(dtsc691)`).
 
 **Important**: Keep the terminal open and the virtual environment activated for all subsequent steps.
 
@@ -95,13 +95,16 @@ You should see `(dtsc691)` at the beginning of your terminal prompt:
 
 ## Step 3: Install Dependencies
 
-Install all required Python packages:
+Install all required Python packages. If you used the recommended conda environment, run:
 
 ```bash
-# Make sure virtual environment is activated (you should see (dtsc691) in prompt)
-pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
+
+Notes on TensorFlow and Python compatibility:
+- The repository pins `tensorflow==2.15.0`, which is compatible with Python 3.11 (the conda recommendation).
+- If you are using Python 3.12 and prefer not to create a Python 3.11 env, you can install a 3.12-compatible TensorFlow (for example `tensorflow==2.16.x`) and then install the rest of the requirements. Either edit `requirements.txt` or run `python -m pip install tensorflow==2.16.2` before installing the other packages.
 
 **This will install:**
 - pandas, numpy (data manipulation)
@@ -113,7 +116,7 @@ pip install -r requirements.txt
 - joblib (model persistence)
 - shap, lime (model interpretability)
 
-**Installation time**: 5-10 minutes depending on your internet speed.
+**Installation time**: 5-20 minutes depending on your internet speed and whether binary wheels need to be built.
 
 ### Troubleshooting: XGBoost on macOS
 
@@ -252,13 +255,20 @@ python src/model_evaluation.py
 
 ## Step 8: Run the Flask Application
 
-Start the web application:
+Start the web application.
+
+If you used the recommended conda environment (`diab-py311`):
 
 ```bash
+# either activate the environment first
+conda activate diab-py311
 python app.py
+
+# or run without activating
+conda run -n diab-py311 python app.py
 ```
 
-**Output**: You should see:
+**Output**: You should see something like:
 ```
  * Running on http://0.0.0.0:5000
  * Debug mode: on
@@ -277,6 +287,11 @@ python app.py
 
 **To stop the application:**
 Press `Ctrl + C` in the terminal
+
+Important runtime note about TensorFlow:
+- `app.py` now defers importing TensorFlow until a saved Keras model file (`models/neural_network.h5`) is detected. This means:
+   - If you do not have the neural network model file or don't want to install TensorFlow, the Flask app will still start and the non-TensorFlow models (sklearn/XGBoost) will work normally.
+   - If `models/neural_network.h5` exists but TensorFlow is not installed, the app will print a clear message indicating neural network support is disabled and continue loading other models.
 
 ---
 

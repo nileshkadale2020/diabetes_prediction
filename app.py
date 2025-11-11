@@ -12,8 +12,41 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
-import tensorflow as tf
-from tensorflow import keras
+import sys
+# TensorFlow import is deferred until we actually need to load a saved Keras model.
+# Importing TensorFlow can be heavy and may fail on systems without it installed.
+tf = None
+keras = None
+
+def log_env_info():
+    """Print environment details to help debug which interpreter and packages are used."""
+    try:
+        print('Python executable:', sys.executable)
+        print('Python version:', sys.version.replace('\n', ' '))
+    except Exception:
+        pass
+
+    try:
+        import sklearn
+        print('scikit-learn:', sklearn.__version__)
+    except Exception:
+        print('scikit-learn: not installed')
+
+    try:
+        import xgboost
+        print('xgboost:', xgboost.__version__)
+    except Exception:
+        print('xgboost: not installed')
+
+    try:
+        import importlib
+        tf_mod = importlib.import_module('tensorflow') if importlib.util.find_spec('tensorflow') else None
+        if tf_mod:
+            print('tensorflow:', tf_mod.__version__)
+        else:
+            print('tensorflow: not installed')
+    except Exception:
+        print('tensorflow: not installed or failed to import')
 
 # Initialize Flask app with custom template and static folders
 # This allows us to organize our HTML templates and CSS files in a separate directory
@@ -59,8 +92,21 @@ def load_models():
             models['XGBoost'] = joblib.load('models/xgboost.pkl')
         
         # Load TensorFlow model (saved as .h5 file, different format)
+        # Import TensorFlow only if the NN model file exists to avoid hard dependency
+        # on TensorFlow at module import time.
         if os.path.exists('models/neural_network.h5'):
-            models['Neural Network'] = keras.models.load_model('models/neural_network.h5')
+            try:
+                # Local import to avoid requiring TensorFlow for users who don't use the NN model
+                import importlib
+                global tf, keras
+                tf = importlib.import_module('tensorflow')
+                keras = importlib.import_module('tensorflow.keras')
+                models['Neural Network'] = keras.models.load_model('models/neural_network.h5')
+            except ImportError as ie:
+                print("TensorFlow is not installed but a neural network model exists.")
+                print("To enable neural network support install TensorFlow (see requirements.txt).")
+            except Exception as e:
+                print(f"Failed to load neural network model: {e}")
         
         # Figure out which model performed best during evaluation
         # This info is saved in a text file after model evaluation
@@ -79,6 +125,10 @@ def load_models():
         print(f"Error loading models: {e}")
         print("Please train models first by running src/model_training.py")
 
+# Log environment info so we can confirm which interpreter / packages are used
+log_env_info()
+
+# Load models after logging environment details
 load_models()
 
 def preprocess_input(data):
@@ -226,8 +276,8 @@ def predict():
 
 if __name__ == '__main__':
     # Run the Flask app
-    # debug=True enables auto-reload on code changes (useful during development)
+    # debug=False to avoid reloader issues that can cause the server to hang or restart unexpectedly
     # host='0.0.0.0' makes it accessible from other devices on the network
     # port=5000 is the default Flask port
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)
 
