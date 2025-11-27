@@ -48,9 +48,6 @@ def train_logistic_regression(X_train, y_train):
     print("=" * 50)
     
     # Hyperparameter tuning using GridSearchCV
-    # C controls regularization strength - smaller C = stronger regularization
-    # L1 penalty (Lasso) can zero out features, L2 (Ridge) shrinks them
-    # Note: liblinear supports both l1 and l2, saga supports both but is slower
     param_grid = {
         'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
         'penalty': ['l1', 'l2'],  # L1 (Lasso) or L2 (Ridge) regularization
@@ -87,10 +84,6 @@ def train_random_forest(X_train, y_train):
     print("=" * 50)
     
     # Hyperparameter tuning
-    # n_estimators: more trees = better but slower
-    # max_depth: controls how deep trees can grow (None = no limit)
-    # min_samples_split: minimum samples needed to split a node
-    # min_samples_leaf: minimum samples in a leaf node
     param_grid = {
         'n_estimators': [100, 200, 300],  # Number of trees in the forest
         'max_depth': [10, 20, 30, None],  # Max depth of trees (None = unlimited)
@@ -99,7 +92,6 @@ def train_random_forest(X_train, y_train):
     }
     
     rf = RandomForestClassifier(random_state=42, n_jobs=-1)
-    # verbose=1 shows progress during training (helpful for long runs)
     grid_search = GridSearchCV(rf, param_grid, cv=5, scoring='roc_auc', n_jobs=-1, verbose=1)
     grid_search.fit(X_train, y_train)
     
@@ -230,8 +222,7 @@ def main():
     3. Trains all four models (Logistic Regression, Random Forest, XGBoost, Neural Network)
     4. Saves all trained models to disk
     
-    This can take a while (30-60 minutes) because of hyperparameter tuning,
-    but it's worth it to get the best possible models.
+    we can run this script standalone to train all models after preprocessing the data.
     """
     print("=" * 50)
     print("Model Training Pipeline")
