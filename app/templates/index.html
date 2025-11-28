@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Diabetes Prediction App{% endblock %}
+
+{% block content %}
+<header>
+    <div class="container">
+        <h1>Welcome to My Data Science Portfolio</h1>
+        <p>Exploring Machine Learning in Healthcare Diagnostics</p>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h2>About This Project</h2>
+        <p>
+            This project aims to develop a machine learning model that predicts the likelihood of diabetes 
+            in individuals based on key medical parameters such as glucose level, BMI, blood pressure, age, 
+            and insulin levels. By identifying early indicators of diabetes, this project seeks to contribute 
+            to preventive healthcare decision-making.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Project Features</h2>
+        <ul style="list-style-position: inside; line-height: 2;">
+            <li><strong>Multiple ML Models:</strong> Logistic Regression, Random Forest, XGBoost, and TensorFlow Neural Network</li>
+            <li><strong>Comprehensive Evaluation:</strong> Accuracy, Precision, Recall, F1-Score, and ROC-AUC metrics</li>
+            <li><strong>Model Interpretability:</strong> SHAP and LIME integration for feature importance</li>
+            <li><strong>Web Interface:</strong> Flask-based application with real-time predictions</li>
+            <li><strong>End-to-End Pipeline:</strong> From data preprocessing to model deployment</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Dataset Information</h2>
+        <p>
+            <strong>Dataset:</strong> PIMA Indians Diabetes Database (Kaggle)<br>
+            <strong>Size:</strong> 768 records with 9 columns (8 features and 1 target variable)<br>
+            <strong>Features:</strong> Pregnancies, Glucose, Blood Pressure, Skin Thickness, Insulin, BMI, 
+            Diabetes Pedigree Function, Age<br>
+            <strong>Target:</strong> Outcome (1 = Diabetic, 0 = Non-Diabetic)
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>Quick Links</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>📄 Resume</h3>
+                <p>View my professional background and experience</p>
+                <a href="{{ url_for('resume') }}" class="btn" style="display: inline-block; margin-top: 1rem;">View Resume</a>
+            </div>
+            <div class="card">
+                <h3>💼 Projects</h3>
+                <p>Explore my data science projects and portfolio</p>
+                <a href="{{ url_for('projects') }}" class="btn" style="display: inline-block; margin-top: 1rem;">View Projects</a>
+            </div>
+            <div class="card">
+                <h3>🔬 Diabetes Prediction</h3>
+                <p>Try the diabetes prediction model</p>
+                <a href="{{ url_for('diabetes') }}" class="btn" style="display: inline-block; margin-top: 1rem;">Make Prediction</a>
+            </div>
+            <div class="card">
+                <h3>🧠 Model Interpretability</h3>
+                <p>Understand how the model makes predictions using SHAP & LIME</p>
+                <a href="{{ url_for('interpretability') }}" class="btn" style="display: inline-block; margin-top: 1rem;">Explore Explanations</a>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

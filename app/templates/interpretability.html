@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Model Interpretability - Diabetes Prediction{% endblock %}
+
+{% block content %}
+<header>
+    <div class="container">
+        <h1>Model Interpretability</h1>
+        <p>Understand how the model makes predictions using SHAP and LIME</p>
+    </div>
+</header>
+
+<main class="container">
+    <div class="card">
+        <h2>What is Model Interpretability?</h2>
+        <p>
+            Model interpretability helps us understand <strong>why</strong> a machine learning model makes 
+            certain predictions. For medical applications like diabetes prediction, it's crucial to know:
+        </p>
+        <ul style="list-style-position: inside; margin-top: 1rem;">
+            <li><strong>Which features</strong> influenced the prediction the most?</li>
+            <li><strong>How much</strong> each feature contributed to the final decision</li>
+            <li><strong>Whether</strong> the model is focusing on medically relevant factors</li>
+        </ul>
+        <p style="margin-top: 1rem;">
+            We use two popular interpretability techniques:
+        </p>
+        <div class="grid" style="margin-top: 1rem;">
+            <div>
+                <h3>SHAP (SHapley Additive exPlanations)</h3>
+                <p>
+                    SHAP values show how much each feature pushes the prediction away from the baseline.
+                    Based on game theory, it provides consistent and accurate feature attributions.
+                </p>
+            </div>
+            <div>
+                <h3>LIME (Local Interpretable Model-agnostic Explanations)</h3>
+                <p>
+                    LIME explains individual predictions by approximating the model locally with an 
+                    interpretable model. It helps understand feature importance for specific cases.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Get Explanation for Your Input</h2>
+        <p>Enter patient information below to see how the model interprets the features:</p>
+        
+        <form id="interpretability-form" style="margin-top: 2rem;">
+            <div class="grid">
+                <div>
+                    <label for="pregnancies">Number of Pregnancies:</label>
+                    <input type="number" id="pregnancies" name="pregnancies" min="0" max="20" value="6" required>
+                </div>
+                <div>
+                    <label for="glucose">Glucose Level (mg/dL):</label>
+                    <input type="number" id="glucose" name="glucose" min="0" max="200" value="148" required>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label for="blood_pressure">Blood Pressure (mm Hg):</label>
+                    <input type="number" id="blood_pressure" name="blood_pressure" min="0" max="150" value="72" required>
+                </div>
+                <div>
+                    <label for="skin_thickness">Skin Thickness (mm):</label>
+                    <input type="number" id="skin_thickness" name="skin_thickness" min="0" max="100" value="35" required>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label for="insulin">Insulin Level (μU/mL):</label>
+                    <input type="number" id="insulin" name="insulin" min="0" max="900" value="0" required>
+                </div>
+                <div>
+                    <label for="bmi">BMI:</label>
+                    <input type="number" id="bmi" name="bmi" min="0" max="70" step="0.1" value="33.6" required>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label for="diabetes_pedigree">Diabetes Pedigree Function:</label>
+                    <input type="number" id="diabetes_pedigree" name="diabetes_pedigree" min="0" max="2.5" step="0.001" value="0.627" required>
+                </div>
+                <div>
+                    <label for="age">Age (years):</label>
+                    <input type="number" id="age" name="age" min="18" max="120" value="50" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Generate Explanation</button>
+        </form>
+
+        <div id="loading" style="display: none; margin-top: 2rem; text-align: center;">
+            <p>Generating explanations... This may take a few seconds.</p>
+            <div style="margin-top: 1rem;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="results" style="display: none;">
+        <div class="card">
+            <h2>Prediction Result</h2>
+            <div id="prediction-info" class="grid">
+                <div>
+                    <h3>Model Used:</h3>
+                    <p id="model-name" style="font-size: 1.2rem; font-weight: bold;"></p>
+                </div>
+                <div>
+                    <h3>Prediction:</h3>
+                    <p id="prediction-result" style="font-size: 1.2rem; font-weight: bold;"></p>
+                </div>
+                <div>
+                    <h3>Probability:</h3>
+                    <p id="probability" style="font-size: 1.2rem; font-weight: bold;"></p>
+                </div>
+                <div>
+                    <h3>Risk Level:</h3>
+                    <p id="risk-level" style="font-size: 1.2rem; font-weight: bold;"></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Feature Importance Explanation</h2>
+            <div id="explanation-text" style="margin-top: 1rem; padding: 1rem; background-color: #f8f9fa; border-left: 4px solid #007bff; white-space: pre-wrap;"></div>
+        </div>
+
+        <div class="card" id="shap-section">
+            <h2>SHAP Explanation</h2>
+            <p>
+                The waterfall plot below shows how each feature contributes to pushing the prediction 
+                away from the base value (average prediction). Red bars increase diabetes risk, 
+                blue bars decrease it.
+            </p>
+            <div style="text-align: center; margin-top: 2rem;">
+                <img id="shap-plot" src="" alt="SHAP Waterfall Plot" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 10px; background: white;">
+            </div>
+        </div>
+
+        <div class="card" id="lime-section">
+            <h2>LIME Explanation</h2>
+            <p>
+                LIME provides a local approximation of the model's behavior for this specific prediction.
+                Features shown are those that most influenced the model's decision.
+            </p>
+            <div style="text-align: center; margin-top: 2rem;">
+                <img id="lime-plot" src="" alt="LIME Feature Importance" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 10px; background: white;">
+            </div>
+        </div>
+    </div>
+
+    <div id="error-message" class="card" style="display: none; background-color: #f8d7da; border-left: 4px solid #dc3545;">
+        <h3 style="color: #721c24;">Error</h3>
+        <p id="error-text" style="color: #721c24;"></p>
+    </div>
+</main>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1rem;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    
+    input[type="number"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        margin-top: 5px;
+    }
+    
+    label {
+        font-weight: 600;
+        color: #333;
+    }
+</style>
+
+<script>
+document.getElementById('interpretability-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Hide previous results and errors
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-message').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    
+    // Collect form data
+    const formData = new FormData(this);
+    
+    try {
+        // Send request to explain endpoint
+        const response = await fetch('/explain', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        // Hide loading
+        document.getElementById('loading').style.display = 'none';
+        
+        if (response.ok) {
+            // Display results
+            document.getElementById('results').style.display = 'block';
+            
+            // Update prediction info
+            document.getElementById('model-name').textContent = data.model_used;
+            document.getElementById('prediction-result').textContent = 
+                data.prediction === 1 ? 'Diabetes' : 'No Diabetes';
+            document.getElementById('probability').textContent = data.probability + '%';
+            document.getElementById('risk-level').textContent = data.risk_level;
+            document.getElementById('risk-level').style.color = 
+                data.risk_level === 'High' ? '#dc3545' : '#28a745';
+            
+            // Update explanation text
+            document.getElementById('explanation-text').textContent = data.explanation_text;
+            
+            // Update SHAP plot
+            if (data.shap_plot) {
+                document.getElementById('shap-section').style.display = 'block';
+                document.getElementById('shap-plot').src = 'data:image/png;base64,' + data.shap_plot;
+            } else {
+                document.getElementById('shap-section').style.display = 'none';
+            }
+            
+            // Update LIME plot
+            if (data.lime_plot) {
+                document.getElementById('lime-section').style.display = 'block';
+                document.getElementById('lime-plot').src = 'data:image/png;base64,' + data.lime_plot;
+            } else {
+                document.getElementById('lime-section').style.display = 'none';
+            }
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            // Show error
+            document.getElementById('error-message').style.display = 'block';
+            document.getElementById('error-text').textContent = data.error || 'An error occurred';
+        }
+    } catch (error) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error-message').style.display = 'block';
+        document.getElementById('error-text').textContent = 'Network error: ' + error.message;
+    }
+});
+</script>
+{% endblock %}

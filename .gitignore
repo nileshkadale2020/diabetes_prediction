@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+dtsc691/  # Virtual environment - should not be committed
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+# Allow notebooks - they're important for the project
+# *.ipynb
+
+# Data files
+data/*.csv
+data/*.pkl
+!data/.gitkeep
+
+# Model files
+models/*.pkl
+models/*.h5
+models/*.png
+models/*.csv
+models/*.txt
+!models/.gitkeep
+
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables
+.env
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+extract_pdf.py
+
