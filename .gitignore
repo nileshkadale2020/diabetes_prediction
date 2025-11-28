@@ -37,7 +37,7 @@ wheels/
 # Model files - now included for capstone project
 # models/*.pkl
 # models/*.h5
-models/*.png
+# models/*.png
 # models/*.csv
 # models/*.txt
 !models/.gitkeep
