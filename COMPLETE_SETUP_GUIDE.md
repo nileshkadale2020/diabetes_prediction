@@ -212,7 +212,7 @@ python src/model_training.py
 3. **XGBoost** - Gradient boosting model (if available)
 4. **Neural Network** - Deep learning model (TensorFlow)
 
-**⚠️ Important**: This step takes **30-60 minutes** depending on your system.
+** Important**: This step takes **30-60 minutes** depending on your system.
 
 **What's happening:**
 - Each model is trained with hyperparameter tuning
@@ -514,8 +514,7 @@ If you encounter any issues:
 
 For questions or issues, refer to:
 - **README.md**: Project overview
-- **QUICKSTART.md**: Quick reference
-- **PRESENTATION_SCRIPT.md**: Project presentation
+
 
 ---
 
